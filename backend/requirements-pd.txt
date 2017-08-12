@@ -1,0 +1,6 @@
+-c constraints.txt
+
+falcon
+gunicorn
+pymongo
+structlog

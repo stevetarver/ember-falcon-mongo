@@ -1,0 +1,371 @@
+{
+	"variables": [],
+	"info": {
+		"name": "cloud-starter-falcon regression test",
+		"_postman_id": "84a70145-8d56-4d00-8773-71bc81cdfea0",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. get all contacts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Response time is less than 300ms\"] = responseTime < 300;",
+							"",
+							"postman.setEnvironmentVariable(\"initial_collection_size\", jsonData.data.length);",
+							"",
+							"console.log(\"Initial collection size: \" + jsonData.data.length);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "2. create a contact",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Successful POST request\"] = responseCode.code === 201;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Response contains a single result\"] = !Array.isArray(jsonData.data);",
+							"tests[\"Response is well-formed json:api\"] = jsonData.data.id == jsonData.data.attributes._id;",
+							"",
+							"postman.setEnvironmentVariable(\"created_contact_id\", jsonData.data.id);",
+							"",
+							"console.log(\"Created contact: \" + jsonData.data.id);"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"postman.setEnvironmentVariable(\"create_contact_info\", ",
+							"`{",
+							"    \"firstName\": \"Leroy\",",
+							"    \"lastName\": \"Jenkins\",",
+							"    \"companyName\": \"Docker Publishing Company\",",
+							"    \"address\": \"1 Solutions Parkway\",",
+							"    \"city\": \"Town & Country\",",
+							"    \"county\": \"Chesterfield\",",
+							"    \"state\": \"MO\",",
+							"    \"zip\": \"63011\",",
+							"    \"phone1\": \"855-226-0709\",",
+							"    \"phone2\": \"888-638-6771\",",
+							"    \"email\": \"leroy.jenkins@ctl.io\",",
+							"    \"website\": \"http://www.ctl.io\"",
+							"}`);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{create_contact_info}}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "3. get the created contact",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Response contains a single result\"] = !Array.isArray(jsonData.data);",
+							"tests[\"Response is type: contacts\"] = jsonData.data.type == \"contacts\";",
+							"",
+							"var orig = JSON.parse(postman.getEnvironmentVariable(\"create_contact_info\"));",
+							"var resp = jsonData.data.attributes",
+							"tests[\"Created contact matches request\"] = orig.firstName == resp.firstName &&",
+							"    orig.lastName == resp.lastName &&",
+							"    orig.companyName == resp.companyName &&",
+							"    orig.address == resp.address &&",
+							"    orig.city == resp.city &&",
+							"    orig.county == resp.county &&",
+							"    orig.state == resp.state &&",
+							"    orig.zip == resp.zip &&",
+							"    orig.phone1 == resp.phone1 &&",
+							"    orig.phone2 == resp.phone2 &&",
+							"    orig.email == resp.email &&",
+							"    orig.website == resp.website;",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts/{{created_contact_id}}",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Leroy\",\n    \"lastName\": \"Jenkins\",\n    \"companyName\": \"Docker Publishing Company\",\n    \"address\": \"1 Solutions Parkway\",\n    \"city\": \"Town & Country\",\n    \"county\": \"Chesterfield\",\n    \"state\": \"MO\",\n    \"zip\": \"63011\",\n    \"phone1\": \"855-226-0709\",\n    \"phone2\": \"888-638-6771\",\n    \"email\": \"leroy.jenkins@ctl.io\",\n    \"website\": \"http://www.ctl.io\"\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "4. update the created contact",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Response contains a single result\"] = !Array.isArray(jsonData.data);",
+							"tests[\"Response is type: contacts\"] = jsonData.data.type == \"contacts\";",
+							"tests[\"Response is well-formed json:api\"] = jsonData.data.id == jsonData.data.attributes._id;",
+							"",
+							"var orig = JSON.parse(postman.getEnvironmentVariable(\"create_contact_info\"));",
+							"var patch = JSON.parse(postman.getEnvironmentVariable(\"update_contact_info\"));",
+							"var resp = jsonData.data.attributes",
+							"tests[\"Contact patch applied correctly\"] = patch.firstName == resp.firstName &&",
+							"    orig.lastName == resp.lastName &&",
+							"    patch.companyName == resp.companyName &&",
+							"    orig.address == resp.address &&",
+							"    orig.city == resp.city &&",
+							"    orig.county == resp.county &&",
+							"    orig.state == resp.state &&",
+							"    orig.zip == resp.zip &&",
+							"    orig.phone1 == resp.phone1 &&",
+							"    orig.phone2 == resp.phone2 &&",
+							"    patch.email == resp.email &&",
+							"    orig.website == resp.website;",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"postman.setEnvironmentVariable(\"update_contact_info\", ",
+							"`{",
+							"    \"firstName\": \"Lester\",",
+							"    \"companyName\": \"Docker Composing Company\",",
+							"    \"email\": \"lester.jenkins@ctl.io\"",
+							"}`);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts/{{created_contact_id}}",
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{update_contact_info}}"
+				},
+				"description": "Modify a couple of contact attributes"
+			},
+			"response": []
+		},
+		{
+			"name": "5. replace the created contact",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Response contains a single result\"] = !Array.isArray(jsonData.data);",
+							"tests[\"Response is well-formed json:api\"] = jsonData.data.id == jsonData.data.attributes._id;",
+							"",
+							"var orig = JSON.parse(postman.getEnvironmentVariable(\"replace_contact_info\"));",
+							"var resp = jsonData.data.attributes",
+							"tests[\"Replaced contact matches request\"] = orig.firstName == resp.firstName &&",
+							"    orig.lastName == resp.lastName &&",
+							"    orig.companyName == resp.companyName &&",
+							"    orig.address == resp.address &&",
+							"    orig.city == resp.city &&",
+							"    orig.county == resp.county &&",
+							"    orig.state == resp.state &&",
+							"    orig.zip == resp.zip &&",
+							"    orig.phone1 == resp.phone1 &&",
+							"    orig.phone2 == resp.phone2 &&",
+							"    orig.email == resp.email &&",
+							"    orig.website == resp.website;",
+							"",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"postman.setEnvironmentVariable(\"replace_contact_info\", ",
+							"`{",
+							"    \"firstName\": \"Buster\",",
+							"    \"lastName\": \"Hamilton\",",
+							"    \"companyName\": \"CoreOS Rocket Manufacturing\",",
+							"    \"address\": \"101 New Montgomery\",",
+							"    \"city\": \"San Francisco\",",
+							"    \"county\": \"Los Angeles\",",
+							"    \"state\": \"CA\",",
+							"    \"zip\": \"94105\",",
+							"    \"phone1\": \"(800) 774-3507\",",
+							"    \"phone2\": \"(800) 774-3508\",",
+							"    \"email\": \"bhamilton@coreos.com\",",
+							"    \"website\": \"https://coreos.com\"",
+							"}`);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts/{{created_contact_id}}",
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{replace_contact_info}}"
+				},
+				"description": "Replace an existing contact with new data"
+			},
+			"response": []
+		},
+		{
+			"name": "6. delete the created contact",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts/{{created_contact_id}}",
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Delete our created contact"
+			},
+			"response": []
+		},
+		{
+			"name": "7. get the deleted contact",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Contact is not found\"] = responseCode.code === 404;",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Response is an errors list\"] = Array.isArray(jsonData.errors);",
+							"var contactId = postman.getEnvironmentVariable(\"created_contact_id\");",
+							"tests[\"Response identifies contact by id\"] = responseBody.has(contactId);",
+							"tests[\"Response error object is valid json:api\"] = jsonData.errors[0].title == \"Contact not found\" &&",
+							"    jsonData.errors[0].detail.indexOf(\"not found\") !== -1 &&",
+							"    jsonData.errors[0].status == \"404\";",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts/{{created_contact_id}}",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Leroy\",\n    \"lastName\": \"Jenkins\",\n    \"companyName\": \"Docker Publishing Company\",\n    \"address\": \"1 Solutions Parkway\",\n    \"city\": \"Town & Country\",\n    \"county\": \"Chesterfield\",\n    \"state\": \"MO\",\n    \"zip\": \"63011\",\n    \"phone1\": \"855-226-0709\",\n    \"phone2\": \"888-638-6771\",\n    \"email\": \"leroy.jenkins@ctl.io\",\n    \"website\": \"http://www.ctl.io\"\n}\n"
+				},
+				"description": "Get the deleted contact to ensure it has been deleted"
+			},
+			"response": []
+		},
+		{
+			"name": "8. get all contacts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Response time is less than 300ms\"] = responseTime < 300;",
+							"",
+							"var initialSize = postman.getEnvironmentVariable(\"initial_collection_size\");",
+							"tests[\"Contacts collection returned to initial size\"] = jsonData.data.length == initialSize;",
+							"",
+							"console.log(\"Clean up environment for next run\");",
+							"postman.clearEnvironmentVariable(\"create_contact_info\");",
+							"postman.clearEnvironmentVariable(\"created_contact_id\");",
+							"postman.clearEnvironmentVariable(\"replace_contact_info\");",
+							"postman.clearEnvironmentVariable(\"update_contact_info\");",
+							"postman.clearEnvironmentVariable(\"initial_collection_size\");",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}/contacts",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

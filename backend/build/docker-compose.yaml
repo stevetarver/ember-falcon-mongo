@@ -1,0 +1,18 @@
+---
+# lint this file from the build dir: docker-compose config
+version: '3'
+
+services:
+  app:
+    container_name: local-${SERVICE_NAME}
+    image: ${DOCKER_IMAGE_NAMETAG}
+    ports:
+      - 8000:8000
+    environment:
+      - MONGO_URI=mongodb://datastore:27017/
+
+  datastore:
+    container_name: local-${SERVICE_NAME}-mongodb
+    image: mongo-sample-data:3.4-r0
+    ports:
+      - 27017:27017

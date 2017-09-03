@@ -1,0 +1,7 @@
+-r requirements-pd.txt
+
+colorama
+py
+pylint
+pytest
+ipython

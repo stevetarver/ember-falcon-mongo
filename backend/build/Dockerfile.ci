@@ -1,0 +1,9 @@
+FROM python:3.6.2-alpine3.6
+
+COPY requirements-dv.txt /app/
+COPY requirements.txt /app/
+COPY constraints.txt /app/
+
+RUN apk add --no-cache bash && \
+    pip install -r /app/requirements-dv.txt
+

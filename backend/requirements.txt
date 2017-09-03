@@ -1,7 +1,6 @@
--r requirements-pd.txt
+-c constraints.txt
 
-colorama
-py
-pylint
-pytest
-ipython
+falcon
+gunicorn
+pymongo
+structlog

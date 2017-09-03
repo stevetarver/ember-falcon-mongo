@@ -1,7 +1,7 @@
 {
 	"variables": [],
 	"info": {
-		"name": "cloud-starter-falcon integration test",
+		"name": "ember-falcon-mongo integration test",
 		"_postman_id": "ba6e82e4-f80c-4103-83c7-da735d9a2596",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"

@@ -1,7 +1,7 @@
 {
 	"variables": [],
 	"info": {
-		"name": "cloud-starter-falcon smoke test",
+		"name": "ember-falcon-mongo smoke test",
 		"_postman_id": "bdb2535d-c996-1675-c184-85fa725698ab",
 		"description": "Provides basic api exercise with validation. May be run in a loop for load testing.\n\nSelect the proper environment:\n* cloud-starter-falcon-local\n* cloud-starter-falcon-dev\n* cloud-starter-falcon-ppd\n* cloud-starter-falcon-prod\n\nNOTES:\n* Requires a fresh mongo-sample-data container\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"

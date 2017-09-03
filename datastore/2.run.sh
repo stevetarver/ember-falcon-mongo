@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-
+#
 # Create/start a new container from the existing image
-
+#
 . config.sh
 
 # NOTE: Data is inserted into the 'test' database by default. You can change the target db by

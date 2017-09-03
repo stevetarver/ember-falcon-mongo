@@ -6,6 +6,8 @@
 #
 #   ./build/lint.sh
 #
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 lint() {
     local PROJECT="$1"
     local OUTPUT
@@ -23,5 +25,9 @@ lint() {
     fi
 }
 
-lint app
-lint test
+# ensure we are in the proper dir for linting
+(
+    cd ${SCRIPT_DIR}/..
+    lint app
+    lint test
+)

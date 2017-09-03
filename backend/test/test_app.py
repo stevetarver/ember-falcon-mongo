@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import falcon
 from falcon import testing
 import pytest
@@ -5,12 +6,12 @@ from unittest.mock import mock_open, call
 
 from pprint import pprint
 
-from src.app import api
+from app import app
 
 
 @pytest.fixture
 def client():
-    return testing.TestClient(api)
+    return testing.TestClient(app)
 
 
 # pytest will inject the object returned by the "client" function

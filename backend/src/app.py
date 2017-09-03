@@ -1,18 +1,20 @@
+# -*- coding: utf-8 -*-
 import falcon
 
 from .api.contacts_api import ContactsApi, ContactApi
 from .api.health import Liveness, Readiness, Ping
-from .common.middleware import Telemetry
 from .common.falcon_mods import falcon_error_serializer
 from .common.logging import initialize_logging, Logger
+from .common.middleware import Telemetry
 
 
 def initialize() -> falcon.API:
     """
     Initialize the falcon api and our router
-    :return: an initialized falcon.API
     """
-    initialize_logging()
+    # No need to initialize logging here - Gunicorn will do it and then load us
+    # into a configured system
+    # initialize_logging()
 
     # Create our WSGI application
     # media_type set for json:api compliance
@@ -35,5 +37,5 @@ def run() -> falcon.API:
     """
     :return: an initialized falcon.API
     """
-    Logger('app').info("cloud-starter-falcon starting")
+    Logger('app').info("ember-falcon-mongo service starting")
     return initialize()

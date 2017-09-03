@@ -7,6 +7,6 @@ LOG_MODE=LOCAL \
 MONGO_URI='mongodb://localhost:27017/' \
 gunicorn \
     --reload \
-    --logger-class app.common.logging.GunicornLogger \
-    'app.app:run()'
+    --logger-class src.common.logging.GunicornLogger \
+    'src.app:run()'
 

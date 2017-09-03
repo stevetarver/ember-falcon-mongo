@@ -1,13 +1,15 @@
-import falcon
-import json
-
-
+# -*- coding: utf-8 -*-
 """
 Any modifications to the falcon framework are consolidated here
 """
+import json
+
+import falcon
 
 
-def falcon_error_serializer(_: falcon.Request, resp:falcon.Response, exc: falcon.HTTPError) -> None:  # pylint: disable=unused-argument
+def falcon_error_serializer(_: falcon.Request,
+                            resp: falcon.Response,
+                            exc: falcon.HTTPError) -> None:
     """ Serializer for native falcon HTTPError exceptions.
 
     Serializes HTTPError classes as proper json:api error

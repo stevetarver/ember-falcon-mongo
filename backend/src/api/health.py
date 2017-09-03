@@ -1,9 +1,15 @@
-import falcon
+# -*- coding: utf-8 -*-
+"""
+Service health indicators
+"""
 from datetime import datetime
+
+import falcon
 
 from ..common.json_api import make_response
 from ..controller.contacts_controller import ContactsController
 from ..repository.contacts_repository import ContactsRepoMongo
+from ..common.build_info import BuildInfo
 
 
 class Liveness(object):
@@ -16,7 +22,7 @@ class Liveness(object):
     """
     def on_get(self, _: falcon.Request, resp: falcon.Response):
         start = datetime.now()
-        _ = ContactsController().find_one()
+        ContactsController().find_one()
         duration = int((datetime.now() - start).total_seconds() * 1000000)
 
         resp.body = make_response('liveness',
@@ -56,7 +62,14 @@ class Ping(object):
     otherwise
     """
     def on_get(self, _: falcon.Request, resp: falcon.Response):
-        resp.body = make_response('ping',
-                                  'id',
-                                  dict(id=0))
-
+        info = BuildInfo()
+        result = dict(id=0,
+                      repoName=info.repo_name,
+                      commitHash=info.commit_hash,
+                      serviceType=info.service_type,
+                      serviceName=info.service_name,
+                      serviceVersion=info.version,
+                      buildDate=info.build_date,
+                      buildEpochSec=info.build_epoch_sec
+                     )
+        resp.body = make_response('ping', 'id', result)

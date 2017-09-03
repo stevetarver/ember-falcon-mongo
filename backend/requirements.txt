@@ -2,5 +2,6 @@
 
 colorama
 py
+pylint
 pytest
 ipython

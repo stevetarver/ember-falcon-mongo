@@ -1,12 +1,19 @@
-from typing import Union, Dict, List
+# -*- coding: utf-8 -*-
+"""
+json:api helpers
+
+see http://jsonapi.org/
+"""
 import json
+from typing import Union, Dict, List
 
 
 def make_response(data_type: str, id_key: str, data: Union[Dict, List[Dict]]) -> str:
     """
     Format a normal response body IAW json:api.
 
-    A common response body looks like:
+    A proper, minimal, response body looks like::
+
         {
         "data": {
             "type": "contacts"
@@ -18,15 +25,18 @@ def make_response(data_type: str, id_key: str, data: Union[Dict, List[Dict]]) ->
                 },
             }
         }
+
     Note: the passed data ends up in the attributes section of the json:api data object
 
-    :param data_type: generic type of data, e.g "contacts"
-    :param id_key: key name in data that holds the id value
-    :param data: and object or list of objects containing response data
-    :return: JSON string respresentation for the response body
+    Args:
+        data_type (str): generic type name of data, e.g "contacts"
+        id_key (str): key name in data that holds the id value
+        data (dict or list(dict)): a response object or list
+
+    Returns:
+        str: JSON string respresentation for the response body
     """
-    result = None
-    if type(data) is list:
+    if isinstance(data, list):
         items = []
         for item in data:
             items.append(_make_response_item(data_type, id_key, item))

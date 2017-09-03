@@ -1,11 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+All operations on the MongoDB contacts collection
+"""
 import os
-import falcon
-import json
 from typing import List, Dict
+
+import falcon
+from bson import errors as bsonErrors
+from bson.objectid import ObjectId
 from pymongo import MongoClient, ReturnDocument
 from pymongo import errors as pymongoErrors
-from bson.objectid import ObjectId
-from bson import errors as bsonErrors
 
 from ..common.logging import LoggerMixin
 
@@ -26,42 +30,51 @@ class ContactsRepoMongo(LoggerMixin):
         if not self._uri:
             raise ValueError('MONGO_URI env var not set; required to connect to mongodb')
         self._mongo = MongoClient(self._uri,
-                                     # Set the mongo connect timeout to 1s < gunicorn
-                                     # worker timeout so we will fire a 503 when db is down
-                                     serverSelectionTimeoutMS=29000)
+                                  # Set the mongo connect timeout to 1s < gunicorn
+                                  # worker timeout so we will fire a 503 when db is down
+                                  serverSelectionTimeoutMS=29000)
         self._contacts = self._mongo.test.contacts
 
-    # def create_item(self, req: falcon.Request):
-    #     try:
-    #         result = self._contacts.insert_one(
-    #             json.load(req.bounded_stream)
-    #         )
-    #         return str(result.inserted_id)
-    #     except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
-    #         self._handle_service_unavailable()
+    def create_item(self, req: falcon.Request):
+        try:
+            result = self._contacts.insert_one(
+                req.context['body_json']
+            )
+            return str(result.inserted_id)
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
+            self._handle_service_unavailable()
 
     def delete_item(self, _: falcon.Request, object_id: str) -> None:
         try:
             self._contacts.delete_one(
                 {'_id': self._make_objectid(object_id)}
             )
-        except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
             self._handle_service_unavailable()
 
     def find_one(self) -> Dict:
         try:
             return self._contacts.find_one()
-        except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
             self._handle_service_unavailable()
 
     def get_list(self, _: falcon.Request) -> List[Dict]:
         try:
+            self._info("Fetching all contacts from datastore")
             result = []
-            for c in self._contacts.find():
-                c['_id'] = str(c['_id'])
-                result.append(c)
+            for contact in self._contacts.find():
+                contact['_id'] = str(contact['_id'])
+                result.append(contact)
             return result
-        except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
             self._handle_service_unavailable()
 
     def get_item(self, _: falcon.Request, object_id: str) -> Dict:
@@ -73,7 +86,9 @@ class ContactsRepoMongo(LoggerMixin):
                 self._handle_not_found(object_id)
             contact['_id'] = str(contact['_id'])
             return contact
-        except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
             self._handle_service_unavailable()
 
     def ping(self) -> None:
@@ -84,33 +99,37 @@ class ContactsRepoMongo(LoggerMixin):
         """
         try:
             self._mongo.admin.command('ping')
-        except:
+        except:  # pylint: disable=bare-except
             self._handle_service_unavailable()
 
     def replace_item(self, req: falcon.Request, object_id: str) -> Dict:
         try:
             result = self._contacts.find_one_and_replace(
                 {'_id': self._make_objectid(object_id)},
-                json.load(req.bounded_stream),
+                req.context['body_json'],
                 return_document=ReturnDocument.AFTER)
             if result is None:
                 self._handle_not_found(object_id)
             result['_id'] = str(result['_id'])
             return result
-        except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
             self._handle_service_unavailable()
 
     def update_item(self, req: falcon.Request, object_id: str) -> Dict:
         try:
             result = self._contacts.find_one_and_update(
                 {'_id': self._make_objectid(object_id)},
-                {'$set': json.load(req.bounded_stream)},
+                {'$set': req.context['body_json']},
                 return_document=ReturnDocument.AFTER)
             if result is None:
                 self._handle_not_found(object_id)
             result['_id'] = str(result['_id'])
             return result
-        except (pymongoErrors.AutoReconnect, pymongoErrors.ConnectionFailure, pymongoErrors.NetworkTimeout):
+        except (pymongoErrors.AutoReconnect,
+                pymongoErrors.ConnectionFailure,
+                pymongoErrors.NetworkTimeout):
             self._handle_service_unavailable()
 
     def _make_objectid(self, object_id: str) -> ObjectId:

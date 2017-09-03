@@ -8,5 +8,5 @@ MONGO_URI='mongodb://localhost:27017/' \
 gunicorn \
     --reload \
     --logger-class src.common.logging.GunicornLogger \
-    'src.app:run()'
+    'app.app:run()'
 

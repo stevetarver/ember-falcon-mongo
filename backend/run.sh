@@ -6,5 +6,5 @@ PYTHONPATH=$PYTHONPATH:. \
 MONGO_URI='mongodb://localhost:27017/' \
 gunicorn \
     --logger-class src.common.logging.GunicornLogger \
-    'src.app:run()'
+    'app.app:run()'
 
